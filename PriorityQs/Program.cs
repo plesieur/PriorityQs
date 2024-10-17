@@ -2,7 +2,7 @@
 
 namespace Priority_Queue
 {
-    enum Priority { High, Low };
+    enum Priority { High, Medium, Low };
     class QueueCircular
     {
         private int _max;
@@ -106,16 +106,29 @@ namespace Priority_Queue
             }
 
         }
+
+        public bool isEmpty()
+        {
+            bool rv = true;
+            if (_size > 0)
+            {
+                rv = false;
+            }
+            return rv;
+        }
+
     }
 
     class PriorityQueue
     {
         private QueueCircular _qHigh;
+        private QueueCircular _qMed;
         private QueueCircular _qLow;
 
         public PriorityQueue(int size)
         {
             _qHigh = new QueueCircular(size);
+            _qMed = new QueueCircular(size);
             _qLow = new QueueCircular(size);
         }
 
@@ -123,17 +136,20 @@ namespace Priority_Queue
         {
             bool rv = true;
 
-            if (priority == Priority.High)
+            switch (priority)
             {
-                rv = _qHigh.enqueue(item);
-            }
-            else if (priority == Priority.Low)
-            {
-                rv = _qLow.enqueue(item);
-            }
-            else
-            {
-                rv = false;
+                case Priority.High:
+                    rv = _qHigh.enqueue(item);
+                    break;
+                case Priority.Medium:
+                    rv = _qMed.enqueue(item);
+                    break;
+                case Priority.Low:
+                    rv = _qLow.enqueue(item);
+                    break;
+                default:
+                    rv = false; 
+                    break;
             }
             return rv;
         }
@@ -141,10 +157,18 @@ namespace Priority_Queue
         public bool dequeue(ref char p)
         {
             bool rv = false;
-            if ((rv = _qHigh.dequeue(ref p)) == false)
+
+            if (!_qHigh.isEmpty())
+            {
+                rv = _qHigh.dequeue(ref p);
+            } else if (!_qMed.isEmpty())
+            {
+                rv = _qMed.dequeue(ref p);
+            } else if (!_qLow.isEmpty())
             {
                 rv = _qLow.dequeue(ref p);
             }
+
             return rv;
         }
 
@@ -152,6 +176,8 @@ namespace Priority_Queue
         {
             Console.WriteLine("High");
             _qHigh.printQueue();
+            Console.WriteLine("Medium");
+            _qMed.printQueue();
             Console.WriteLine("Low");
             _qLow.printQueue();
         }
@@ -165,11 +191,40 @@ namespace Priority_Queue
         {
             PriorityQueue Q = new PriorityQueue(5);
             char item = '#';
+            bool rv;
 
             Console.WriteLine("\nPrintout of queue\n--------------------");
             Q.printQueue();
             Console.WriteLine();
 
+            Q.enqueue(Priority.High, 'A');
+            Q.enqueue(Priority.Low, 'a');
+            Q.enqueue(Priority.Medium, '1');
+            Q.enqueue(Priority.Low, 'b');
+            Q.enqueue(Priority.High, 'B');
+            Q.enqueue(Priority.Low, 'c');
+            Q.enqueue(Priority.Medium, '2');
+
+            Console.WriteLine("\nPrintout of queue\n--------------------");
+            Q.printQueue();
+            Console.WriteLine();
+            
+            for (int i = 0; i < 8; i++)
+            {
+                rv = Q.dequeue(ref item);
+                if (rv)
+                {
+                    Console.WriteLine("Dequeue: {0}", item);
+                } else
+                {
+                    Console.WriteLine("Dequeue: Empty");
+                }
+            }
+
+            Console.WriteLine("\nPrintout of queue\n--------------------");
+            Q.printQueue();
+            Console.WriteLine();
+            
             for (int i = 0; i < 4; i++)
             {
                 Console.Write("Enqueue of {0} ", (char)(i + 97));
@@ -198,6 +253,44 @@ namespace Priority_Queue
                     Console.WriteLine("Dequeue Error");
                 }
             }
+
+            Console.WriteLine("\nPrintout of queue\n--------------------");
+            Q.printQueue();
+            Console.WriteLine();
+            
+            for (int i = 0; i < 3; i++)
+            {
+                Console.Write("Enqueue of {0} ", (char)(i + 48));
+                if (Q.enqueue(Priority.Medium, (char)(i + 48)))
+                {
+                    Console.WriteLine("Successful");
+                }
+                else
+                {
+                    Console.WriteLine("Unsuccessful");
+                }
+            }
+
+            Console.WriteLine("\nPrintout of queue\n--------------------");
+            Q.printQueue();
+            Console.WriteLine();
+            
+            for (int i = 0; i < 2; i++)
+            {
+                if (Q.dequeue(ref item))
+                {
+                    Console.WriteLine("{0} removed from queue", item);
+                }
+                else
+                {
+                    Console.WriteLine("Dequeue Error");
+                }
+            }
+
+            Console.WriteLine("\nPrintout of queue\n--------------------");
+            Q.printQueue();
+            Console.WriteLine();
+            
             for (int i = 0; i < 4; i++)
             {
                 Console.Write("Enqueue of {0} ", (char)(i + 65));
@@ -215,7 +308,7 @@ namespace Priority_Queue
             Q.printQueue();
             Console.WriteLine();
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 10; i++)
             {
                 if (Q.dequeue(ref item))
                 {
